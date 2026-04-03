@@ -1,0 +1,111 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: products
+    // Document ID: auto-generated
+    // Fields: name, slug, description, shortDescription, price, images, categoryId, featured, seo, createdAt, updatedAt
+    //
+    // Collection: categories
+    // Document ID: auto-generated
+    // Fields: name, slug, description, image, order
+    //
+    // Collection: posts
+    // Document ID: auto-generated
+    // Fields: title, slug, content, excerpt, thumbnail, author, status, seo, createdAt, updatedAt
+    //
+    // Collection: settings
+    // Document ID: global
+    // Fields: companyName, address, phone, email, facebookUrl, zaloUrl, seoDefault
+    //
+    // Collection: users
+    // Document ID: uid
+    // Fields: role, email, displayName
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "fb00195@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidString(field, min, max) {
+      return request.resource.data[field] is string && 
+             request.resource.data[field].size() >= min && 
+             request.resource.data[field].size() <= max;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // Publicly readable collections
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /posts/{postId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Admins collection (custom login)
+    match /admins/{adminId} {
+      allow read: if true; // Needed for the custom login query
+      allow write: if isAdmin();
+    }
+
+    // Contact messages
+    match /messages/{messageId} {
+      allow create: if true;
+      allow read, write: if isAdmin();
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == userId && 
+                    request.resource.data.role == 'user';
+      allow update: if isAuthenticated() && (
+        (request.auth.uid == userId && request.resource.data.role == resource.data.role) || 
+        isAdmin()
+      );
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

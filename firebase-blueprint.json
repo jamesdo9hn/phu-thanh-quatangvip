@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "products": {
+      "title": "Products",
+      "description": "Corporate gift products",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Product name" },
+        "slug": { "type": "string", "description": "URL-friendly slug" },
+        "description": { "type": "string", "description": "Full product description (HTML/Markdown)" },
+        "shortDescription": { "type": "string", "description": "Short summary for listings" },
+        "price": { "type": "number", "description": "Price (optional)" },
+        "images": { "type": "array", "items": { "type": "string" }, "description": "Array of image URLs" },
+        "categoryId": { "type": "string", "description": "Reference to category ID" },
+        "featured": { "type": "boolean", "description": "Whether to show on homepage" },
+        "seo": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "metaDescription": { "type": "string" },
+            "keywords": { "type": "string" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "slug", "categoryId"]
+    },
+    "categories": {
+      "title": "Categories",
+      "description": "Product categories",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" },
+        "image": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["name", "slug"]
+    },
+    "posts": {
+      "title": "Blog Posts",
+      "description": "SEO-optimized articles",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "slug": { "type": "string" },
+        "content": { "type": "string", "description": "Markdown content with H1-H4 support" },
+        "excerpt": { "type": "string" },
+        "thumbnail": { "type": "string" },
+        "author": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "published"] },
+        "seo": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "metaDescription": { "type": "string" },
+            "keywords": { "type": "string" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "slug", "content"]
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Global website settings",
+      "type": "object",
+      "properties": {
+        "companyName": { "type": "string" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "facebookUrl": { "type": "string" },
+        "zaloUrl": { "type": "string" },
+        "seoDefault": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "description": { "type": "string" },
+            "keywords": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/products": { "schema": "products", "description": "Collection of gift products" },
+    "/categories": { "schema": "categories", "description": "Product categories" },
+    "/posts": { "schema": "posts", "description": "Blog articles" },
+    "/settings": { "schema": "settings", "description": "Global configuration" }
+  }
+}
