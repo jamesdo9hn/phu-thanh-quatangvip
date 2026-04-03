@@ -7,21 +7,25 @@ import { cn } from '../../lib/utils';
 import { useSettings } from '../../contexts/SettingsContext';
 
 export default function Hero() {
-  const { settings } = useSettings();
+  const { settings, loading } = useSettings();
   const [hotline, setHotline] = useState('0976.73.85.85');
-  const [slides, setSlides] = useState<string[]>([
-    "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?q=80&w=1974&auto=format&fit=crop"
-  ]);
+  const [slides, setSlides] = useState<string[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     if (settings) {
       if (settings.phone) setHotline(settings.phone);
-      if (settings.slideshowImages && settings.slideshowImages.filter(Boolean).length > 0) {
-        setSlides(settings.slideshowImages.filter(Boolean));
+      const slideshowImages = settings.slideshowImages?.filter(Boolean) || [];
+      const newSlides = slideshowImages.length > 0 
+        ? slideshowImages 
+        : ["https://images.unsplash.com/photo-1513201099705-a9746e1e201f?q=80&w=1974&auto=format&fit=crop"];
+      
+      // Only update if slides are different to avoid unnecessary re-renders
+      if (JSON.stringify(newSlides) !== JSON.stringify(slides)) {
+        setSlides(newSlides);
       }
     }
-  }, [settings]);
+  }, [settings, slides]);
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -70,35 +74,43 @@ export default function Hero() {
           </div>
 
           {/* Main Banner */}
-          <div className="lg:w-3/4 relative overflow-hidden h-[300px] lg:h-full">
-            <AnimatePresence mode="wait">
-              <motion.img 
-                key={currentSlide}
-                src={slides[currentSlide]} 
-                alt="Corporate Gifts" 
-                className="w-full h-full object-cover absolute inset-0"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1 }}
-                referrerPolicy="no-referrer"
-              />
-            </AnimatePresence>
-            
-            {/* Dots */}
-            {slides.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                {slides.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentSlide(idx)}
-                    className={cn(
-                      "w-2 h-2 rounded-full transition-all",
-                      idx === currentSlide ? "bg-primary w-6" : "bg-white/50 hover:bg-white"
-                    )}
-                  />
-                ))}
+          <div className="lg:w-3/4 relative overflow-hidden h-[300px] lg:h-full bg-gray-100">
+            {loading || slides.length === 0 ? (
+              <div className="w-full h-full animate-pulse bg-gray-200 flex items-center justify-center">
+                <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
               </div>
+            ) : (
+              <>
+                <AnimatePresence mode="wait">
+                  <motion.img 
+                    key={currentSlide}
+                    src={slides[currentSlide]} 
+                    alt="Corporate Gifts" 
+                    className="w-full h-full object-cover absolute inset-0"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1 }}
+                    referrerPolicy="no-referrer"
+                  />
+                </AnimatePresence>
+                
+                {/* Dots */}
+                {slides.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                    {slides.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentSlide(idx)}
+                        className={cn(
+                          "w-2 h-2 rounded-full transition-all",
+                          idx === currentSlide ? "bg-primary w-6" : "bg-white/50 hover:bg-white"
+                        )}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
