@@ -14,7 +14,7 @@ const NAV_LINKS = [
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { settings } = useSettings();
+  const { settings, loading } = useSettings();
   const location = useLocation();
 
   useEffect(() => {
@@ -33,16 +33,28 @@ export default function Header() {
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <Phone size={14} />
-              <span>{settings?.phone || '0976 73 85 85'}</span>
+              {loading ? (
+                <div className="h-3 w-24 bg-white/20 animate-pulse rounded" />
+              ) : (
+                <span>{settings?.phone || '0976 73 85 85'}</span>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Mail size={14} />
-              <span>{settings?.email || 'phuthanhpetros9985@gmail.com'}</span>
+              {loading ? (
+                <div className="h-3 w-32 bg-white/20 animate-pulse rounded" />
+              ) : (
+                <span>{settings?.email || 'phuthanhpetros9985@gmail.com'}</span>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2">
             <MapPin size={14} />
-            <span>{settings?.address || 'Số nhà 29, Ngách 8/11/186, Tổ 4, Đường Lê Quang Đạo, Hà Nội'}</span>
+            {loading ? (
+              <div className="h-3 w-48 bg-white/20 animate-pulse rounded" />
+            ) : (
+              <span>{settings?.address || 'Số nhà 29, Ngách 8/11/186, Tổ 4, Đường Lê Quang Đạo, Hà Nội'}</span>
+            )}
           </div>
         </div>
       </div>
@@ -54,7 +66,9 @@ export default function Header() {
       )}>
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2">
-            {settings?.logoUrl ? (
+            {loading ? (
+              <div className="w-10 h-10 bg-gray-200 animate-pulse rounded-full" />
+            ) : settings?.logoUrl ? (
               <img src={settings.logoUrl} alt={settings.companyName} className="h-12 w-auto object-contain" />
             ) : (
               <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl">
@@ -62,9 +76,13 @@ export default function Header() {
               </div>
             )}
             <div className="flex flex-col">
-              <span className="text-primary font-bold text-lg leading-tight uppercase">
-                {settings?.companyName?.split(' ').slice(-3).join(' ') || 'PHÚ THÀNH GOLD'}
-              </span>
+              {loading ? (
+                <div className="h-5 w-32 bg-gray-200 animate-pulse rounded mb-1" />
+              ) : (
+                <span className="text-primary font-bold text-lg leading-tight uppercase">
+                  {settings?.companyName?.split(' ').slice(-3).join(' ') || 'PHÚ THÀNH GOLD'}
+                </span>
+              )}
               <span className="text-gray-500 text-[10px] tracking-[0.2em] uppercase">Corporate Gifts</span>
             </div>
           </Link>

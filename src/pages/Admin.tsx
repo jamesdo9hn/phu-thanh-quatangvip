@@ -346,6 +346,10 @@ const PostManager = () => {
         });
         toast.success('Đăng bài viết thành công');
       }
+      
+      // Auto-sync JSON
+      fetch('/api/sync', { method: 'POST' }).catch(console.error);
+      
       setIsEditing(false);
       fetchPosts();
     } catch (error) {
@@ -358,6 +362,8 @@ const PostManager = () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
       await deleteDoc(doc(db, 'posts', id));
       toast.success('Đã xóa bài viết');
+      // Auto-sync JSON
+      fetch('/api/sync', { method: 'POST' }).catch(console.error);
       fetchPosts();
     }
   };
@@ -637,6 +643,8 @@ const ProductManager = () => {
         featured: !product.featured
       });
       toast.success('Đã cập nhật trạng thái nổi bật');
+      // Auto-sync JSON
+      fetch('/api/sync', { method: 'POST' }).catch(console.error);
       fetchProducts();
     } catch (error) {
       console.error('Error toggling featured:', error);
@@ -670,6 +678,10 @@ const ProductManager = () => {
         });
         toast.success('Thêm sản phẩm thành công');
       }
+      
+      // Auto-sync JSON
+      fetch('/api/sync', { method: 'POST' }).catch(console.error);
+      
       setIsEditing(false);
       fetchProducts();
     } catch (error) {
@@ -682,6 +694,8 @@ const ProductManager = () => {
     try {
       await deleteDoc(doc(db, 'products', id));
       toast.success('Đã xóa sản phẩm');
+      // Auto-sync JSON
+      fetch('/api/sync', { method: 'POST' }).catch(console.error);
       fetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
@@ -1131,6 +1145,8 @@ const SettingsManager = () => {
         await updateDoc(doc(db, 'settings', snapshot.docs[0].id), settings as any);
       }
       toast.success('Cập nhật cài đặt thành công');
+      // Auto-sync JSON
+      fetch('/api/sync', { method: 'POST' }).catch(console.error);
     } catch (error) {
       toast.error('Có lỗi xảy ra');
     }

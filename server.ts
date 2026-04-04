@@ -16,7 +16,43 @@ const db = getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+async function syncData() {
+  try {
+    console.log('Starting initial sync to JSON...');
+    
+    // 1. Sync Products
+    const productsSnapshot = await getDocs(query(collection(db, 'products'), orderBy('createdAt', 'desc')));
+    const products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // 2. Sync Posts
+    const postsSnapshot = await getDocs(query(collection(db, 'posts'), orderBy('createdAt', 'desc')));
+    const posts = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // 3. Sync Settings
+    const settingsSnapshot = await getDocs(collection(db, 'settings'));
+    const settings = settingsSnapshot.docs.length > 0 ? settingsSnapshot.docs[0].data() : {};
+
+    // Ensure data directory exists
+    const dataDir = path.join(process.cwd(), 'public', 'data');
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+
+    // Write to files
+    fs.writeFileSync(path.join(dataDir, 'products.json'), JSON.stringify(products, null, 2));
+    fs.writeFileSync(path.join(dataDir, 'posts.json'), JSON.stringify(posts, null, 2));
+    fs.writeFileSync(path.join(dataDir, 'settings.json'), JSON.stringify(settings, null, 2));
+
+    console.log(`Initial sync completed: ${products.length} products, ${posts.length} posts.`);
+  } catch (error) {
+    console.error('Initial sync error:', error);
+  }
+}
+
 async function startServer() {
+  // Run initial sync
+  await syncData();
+
   const app = express();
   const PORT = 3000;
 
